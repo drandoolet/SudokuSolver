@@ -1,4 +1,9 @@
-package PACKAGE_NAME;
+public abstract class AbstractCell {
+    private int number;
 
-public class AbstractCell {
+    public void setNumber(int n) { number = n; }
+
+    public int getNumber() {
+        return number;
+    }
 }
