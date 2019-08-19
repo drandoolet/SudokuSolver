@@ -1,9 +1,9 @@
 public abstract class AbstractCell {
-    private int number;
+    private CellNumber number = new CellNumber();
 
-    public void setNumber(int n) { number = n; }
+    public void setNumber(int n, CellNumber.Status status) { number.putNumber(n, status); }
 
-    public int getNumber() {
+    public CellNumber getCellNumber() {
         return number;
     }
 }
