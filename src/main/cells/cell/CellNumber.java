@@ -17,7 +17,7 @@ public class CellNumber {
         return status;
     }
 
-    enum Status {
+    public enum Status {
         FIXED, PUT, FREE
     }
 }
