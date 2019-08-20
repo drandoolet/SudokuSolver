@@ -1,3 +1,5 @@
+package main.cells.cell;
+
 public class CellNumber {
     private int number;
     private Status status = Status.FREE;

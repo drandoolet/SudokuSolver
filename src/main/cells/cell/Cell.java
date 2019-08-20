@@ -1,17 +1,23 @@
+package main.cells.cell;
+
+import main.cells.groups.CellGroup;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Cell extends AbstractCell {
+    private final Coordinates coordinates;
     private final CellGroup row, column, square;
-    private final List<CellGroup> groups = new ArrayList<>(3);
     private PossibleNumbers numbers = new PossibleNumbers();
 
-    public Cell(CellGroup row, CellGroup column, CellGroup square) {
+    public Cell(int x, int y, CellGroup row, CellGroup column, CellGroup square) {
+        coordinates = new Coordinates(x, y);
         this.row = row;
         this.column = column;
         this.square = square;
 
+        List<CellGroup> groups = new ArrayList<>(3);
         groups.addAll(Arrays.asList(row, column, square));
         for (CellGroup group : groups) group.registerCell(this);
     }
@@ -20,6 +26,7 @@ public class Cell extends AbstractCell {
         return numbers.getNumbers();
     }
 
+    public Coordinates getCoordinates() { return coordinates; }
 
 
     private class PossibleNumbers {
@@ -56,4 +63,22 @@ public class Cell extends AbstractCell {
             return new ArrayList<>(nums);
         }
     }
+
+    private class Coordinates {
+        final int x, y;
+
+        Coordinates(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        int getX() {
+            return x;
+        }
+
+        int getY() {
+            return y;
+        }
+    }
+
 }

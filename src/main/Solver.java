@@ -1,3 +1,8 @@
+package main;
+
+import main.cells.groups.*;
+import main.cells.cell.*;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,3 +1,5 @@
+package main.cells.cell;
+
 public abstract class AbstractCell {
     private CellNumber number = new CellNumber();
 

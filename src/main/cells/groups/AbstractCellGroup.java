@@ -1,3 +1,8 @@
+package main.cells.groups;
+
+import main.cells.cell.AbstractCell;
+import main.cells.cell.Cell;
+
 import java.util.Set;
 
 public abstract class AbstractCellGroup {

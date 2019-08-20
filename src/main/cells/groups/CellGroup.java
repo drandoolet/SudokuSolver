@@ -1,3 +1,7 @@
+package main.cells.groups;
+
+import main.cells.cell.Cell;
+
 import java.util.*;
 
 public class CellGroup extends AbstractCellGroup {
