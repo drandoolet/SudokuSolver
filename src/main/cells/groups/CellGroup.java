@@ -5,7 +5,7 @@ import main.cells.cell.Cell;
 import java.util.*;
 
 public class CellGroup extends AbstractCellGroup {
-    private final HashSet<Cell> cells = new HashSet<>();
+    private final ArrayList<Cell> cells = new ArrayList<>();
     private int cellsCount;
     private NumbersNeeded numbersNeeded = new NumbersNeeded();
 
@@ -16,7 +16,7 @@ public class CellGroup extends AbstractCellGroup {
 
     public CellGroup() {} // TODO unsafe
 
-    public HashSet<Cell> getCells() { return cells; }
+    public ArrayList<Cell> getCells() { return cells; }
 
     @Override
     public void registerCell(Cell cell) {
