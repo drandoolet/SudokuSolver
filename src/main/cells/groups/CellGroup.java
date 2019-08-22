@@ -6,15 +6,20 @@ import java.util.*;
 
 public class CellGroup extends AbstractCellGroup {
     private final ArrayList<Cell> cells = new ArrayList<>();
-    private int cellsCount;
+    private int groupNumber;
     private NumbersNeeded numbersNeeded = new NumbersNeeded();
 
     public CellGroup(Cell ...cells) {
         this.cells.addAll(Arrays.asList(cells));
-        cellsCount = cells.length;
     }
 
-    public CellGroup() {} // TODO unsafe
+    public CellGroup(int groupNumber) {
+        this.groupNumber = groupNumber;
+    } // TODO unsafe
+
+    public int getGroupNumber() {
+        return groupNumber;
+    }
 
     public ArrayList<Cell> getCells() { return cells; }
 
@@ -25,7 +30,7 @@ public class CellGroup extends AbstractCellGroup {
 
     @Override
     public boolean isCellsLayoutValid() {
-        for (int i = 1; i <= cellsCount; i++) {
+        for (int i = 1; i <= cells.size(); i++) {
             if (!cellsHaveValue(i)) return false;
         }
         return true;
@@ -44,7 +49,7 @@ public class CellGroup extends AbstractCellGroup {
 
     private class NumbersNeeded {
         private final List<Integer> nums = new ArrayList<>();
-        private volatile boolean isChanged = false;
+        private volatile boolean isChanged = true;
 
         void numbersChanged() { isChanged = true; }
 
@@ -63,14 +68,29 @@ public class CellGroup extends AbstractCellGroup {
                 isChanged = false;
                 // starting point - group needs every num
                 nums.clear();
-                for (int i = 1; i <= cellsCount; i++) {
+                for (int i = 1; i <= cells.size(); i++) {
                     nums.add(i);
                 }
 
                 // checking if cells have a num, if -> delete
-                for (int i = 1; i <= cellsCount; i++) {
+                for (int i = 1; i <= cells.size(); i++) {
                     for (Cell cell : cells) {
-                        if (cell.getCellNumber().getNumber() == i) nums.remove(i);
+                        StringBuilder s = new StringBuilder();
+                        if (cell.getCoordinates().toString().equals("Cell(0-0)")) {
+                            s.append(String.format("%s contains: %d. PN: %s",
+                                    cell.getCoordinates(),
+                                    cell.getCellNumber().getNumber(),
+                                    cell.getPossibleNumbers().toString()));
+                            s.append(String.format("CellGroup now tests %s for having %d : ", cell.getCoordinates(), i));
+
+                            if (cell.getCellNumber().getNumber() == i) {
+                                s.append("true!");
+                                nums.remove((Integer) i);
+                            } else s.append("false!");
+                            //System.out.println(s.toString());
+                        } else if (cell.getCellNumber().getNumber() == i) {
+                            nums.remove((Integer) i);
+                        }
                     }
                 }
             }

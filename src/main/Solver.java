@@ -22,6 +22,10 @@ public class Solver {
         for (CellGroup group : rows) cells.addAll(group.getCells());
     }
 
+    public void printAnswer() {
+        FieldParser.Printer.printField(rows);
+    }
+
     public void solve() {
         findObviousNumbersForCells();
 
@@ -30,11 +34,26 @@ public class Solver {
 
     private void findObviousNumbersForCells() {
         for (Cell cell : cells) {
+            printCellInfo(cell, 1, 2); // TESTING
+            printCellInfo(cell, 1, 1);
+            printCellInfo(cell, 2, 1);
+            printCellInfo(cell, 8, 8);
+
             if (cell.getPossibleNumbers().size() == 1) {
+                System.out.println("wtf? if worked for "+cell.getCoordinates());
                 cell.setNumber(cell.getPossibleNumbers().get(0), CellNumber.Status.FIXED);
-                findObviousNumbersForCells();
+                //findObviousNumbersForCells();
                 break;
             }
         }
+    }
+
+    private void printCellInfo(Cell cell) {
+        System.out.println(cell.getCellInfo());
+    }
+
+    private void printCellInfo(Cell cell, int ifX, int ifY) {
+        if (cell.getCoordinates().getX() == ifX && cell.getCoordinates().getY() == ifY)
+            printCellInfo(cell);
     }
 }

@@ -1,8 +1,6 @@
 package main;
 
-import main.cells.groups.CellColumn;
-import main.cells.groups.CellGroup;
-import main.cells.groups.CellRow;
+import main.cells.groups.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,9 +21,9 @@ public class Main {
             ArrayList<CellGroup> groups = new ArrayList<>(rowsNum);
 
             for (int i = 0; i < rowsNum; i++) {
-                rows.add(new CellRow());
-                columns.add(new CellColumn());
-                groups.add(new CellGroup());
+                rows.add(new CellRow(i));
+                columns.add(new CellColumn(i));
+                groups.add(new CellGroup(i));
             }
 
             try {
@@ -36,6 +34,11 @@ public class Main {
 
             FieldParser.Printer.printField(rows);
 
+            System.out.println("now starts Solver\n");
+
+            Solver solver = new Solver(rows, columns, groups);
+            solver.solve();
+            solver.printAnswer();
         }
     }
 }
