@@ -25,7 +25,19 @@ public class Cell extends AbstractCell {
         for (CellGroup group : groups) group.registerCell(this);
     }
 
-    public String getCellInfo() {
+    public Cell(CellRow row, CellColumn column, CellGroup square) {
+        coordinates = new Coordinates(row.getGroupNumber(), column.getGroupNumber());
+        this.row = row;
+        this.column = column;
+        this.square = square;
+
+        List<CellGroup> groups = new ArrayList<>(3);
+        groups.addAll(Arrays.asList(row, column, square));
+        for (CellGroup group : groups) group.registerCell(this);
+    }
+
+    @Override
+    public String toString() {
         return String.format("%s contains: %d (%s). PN: %s. R/C/S: %d/%d/%d",
                 coordinates,
                 getCellNumber().getNumber(),
@@ -59,11 +71,11 @@ public class Cell extends AbstractCell {
                 all.addAll(rowNums);
                 all.addAll(columnNums);
                 all.addAll(squareNums);
-
+/*
                 if (coordinates.toString().equals("Cell(0-0)")) {
                     System.out.printf("(Cell.java) Cell(0-0):\nall: %s\nrows: %s\ncolumns: %s\nsquares: %s\n",
                             all.toString(), rowNums.toString(), columnNums.toString(), squareNums.toString());
-                }
+                } */
 
                 for (Integer i : all)
                     if (rowNums.contains(i) && columnNums.contains(i) && squareNums.contains(i))

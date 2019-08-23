@@ -13,6 +13,16 @@ public class CellGroup extends AbstractCellGroup {
         this.cells.addAll(Arrays.asList(cells));
     }
 
+    @Override
+    public String toString() {
+        return String.format("CellGroup (%s %d): NN: %s. Cells: %s. Layout valid: %b",
+                this.getClass().toString(),
+                groupNumber,
+                getNumbersNeeded().toString(),
+                getCellsNumbers().toString(),
+                isCellsLayoutValid());
+    }
+
     public CellGroup(int groupNumber) {
         this.groupNumber = groupNumber;
     } // TODO unsafe
@@ -41,6 +51,12 @@ public class CellGroup extends AbstractCellGroup {
             if (cell.getCellNumber().getNumber() == i) return true;
         }
         return false;
+    }
+
+    private ArrayList<Integer> getCellsNumbers() {
+        ArrayList<Integer> list = new ArrayList<>(cells.size());
+        for (Cell cell: cells) list.add(cell.getCellNumber().getNumber());
+        return list;
     }
 
     public ArrayList<Integer> getNumbersNeeded() {

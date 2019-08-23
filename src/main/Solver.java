@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Solver {
     private final List<CellRow> rows;
@@ -22,25 +24,29 @@ public class Solver {
         for (CellGroup group : rows) cells.addAll(group.getCells());
     }
 
+    public CellGroup getCellGroupByClassAndNumber(Groups group, int number) {
+        switch (group) {
+            case ROW: return rows.get(number);
+            case COLUMN: return columns.get(number);
+            case SQUARE: return squares.get(number);
+            default: throw new IllegalArgumentException("No such CellGroup");
+        }
+    }
+
     public void printAnswer() {
         FieldParser.Printer.printField(rows);
     }
 
     public void solve() {
+        test();
         findObviousNumbersForCells();
-
 
     }
 
     private void findObviousNumbersForCells() {
         for (Cell cell : cells) {
-            printCellInfo(cell, 1, 2); // TESTING
-            printCellInfo(cell, 1, 1);
-            printCellInfo(cell, 2, 1);
-            printCellInfo(cell, 8, 8);
-
             if (cell.getPossibleNumbers().size() == 1) {
-                System.out.println("wtf? if worked for "+cell.getCoordinates());
+                System.out.println("found an obvious num ("+cell.getPossibleNumbers().get(0)+") for "+cell.getCoordinates());
                 cell.setNumber(cell.getPossibleNumbers().get(0), CellNumber.Status.FIXED);
                 //findObviousNumbersForCells();
                 break;
@@ -48,12 +54,36 @@ public class Solver {
         }
     }
 
-    private void printCellInfo(Cell cell) {
-        System.out.println(cell.getCellInfo());
+    private Cell findCell(int x, int y) {
+        for (Cell cell : getCellGroupByClassAndNumber(Groups.ROW, x).getCells()) {
+            if (cell.getCoordinates().getY() == y) return cell;
+        }
+        return null; //TODO create exception cellnotfound or smth like
     }
 
-    private void printCellInfo(Cell cell, int ifX, int ifY) {
-        if (cell.getCoordinates().getX() == ifX && cell.getCoordinates().getY() == ifY)
-            printCellInfo(cell);
+    private class SolverLogger {
+        Logger logger = Logger.getLogger("Solver.java");
+
+        void log(String s) {
+            log(s, Level.CONFIG);
+        }
+
+        void log(String s, Level level) {
+            logger.log(level, s);
+        }
+    }
+
+    public enum Groups {
+        ROW,
+        COLUMN,
+        SQUARE
+    }
+
+    private void test() {
+        System.out.println(findCell(0, 0));
+        System.out.println(getCellGroupByClassAndNumber(Groups.ROW, 0));
+        System.out.println(getCellGroupByClassAndNumber(Groups.COLUMN, 0));
+        System.out.println(getCellGroupByClassAndNumber(Groups.SQUARE, 0));
+
     }
 }

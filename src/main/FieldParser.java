@@ -43,7 +43,7 @@ import java.util.List;
         char[] chars = s.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             int n = Integer.parseInt(String.valueOf(chars[i]));
-            Cell cell = new Cell(i, rowNumber, rows.get(rowNumber), columns.get(i), groups.get(rowNumber/3 + i/3));
+            Cell cell = new Cell(rows.get(rowNumber), columns.get(i), groups.get(3*(rowNumber/3) + i/3));
             if (n == 0) cell.setNumber(0, CellNumber.Status.FREE);
             else cell.setNumber(n, CellNumber.Status.FIXED);
         }
