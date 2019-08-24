@@ -3,10 +3,8 @@ package main;
 import main.cells.groups.*;
 import main.cells.cell.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +12,7 @@ public class Solver {
     private final List<CellRow> rows;
     private final List<CellColumn> columns;
     private final List<CellGroup> squares;
-    private final Set<Cell> cells = new HashSet<>();
+    private final ArrayList<Cell> cells = new ArrayList<>();
 
     public Solver(List<CellRow> rows, List<CellColumn> columns, List<CellGroup> squares) {
         this.rows = new ArrayList<>(rows);
@@ -38,18 +36,31 @@ public class Solver {
     }
 
     public void solve() {
-        test();
+        long time = System.nanoTime();
+        //test();
         findObviousNumbersForCells();
+        System.out.println("TOTAL time elapsed in solve() (sec): "+getSecondsElapsedFrom(time));
+    }
 
+    private float getSecondsElapsedFrom(long time) {
+        return (float) (TimeUnit.NANOSECONDS.toSeconds((System.nanoTime()-time)*100))/100;
     }
 
     private void findObviousNumbersForCells() {
         for (Cell cell : cells) {
-            if (cell.getPossibleNumbers().size() == 1) {
-                System.out.println("found an obvious num ("+cell.getPossibleNumbers().get(0)+") for "+cell.getCoordinates());
-                cell.setNumber(cell.getPossibleNumbers().get(0), CellNumber.Status.FIXED);
-                //findObviousNumbersForCells();
-                break;
+            //System.out.println(cell);
+            ArrayList<Integer> possibleNumbers = cell.getPossibleNumbers();
+
+            if (possibleNumbers.size() != 0) {
+                System.out.println(cell);
+
+                if (cell.getPossibleNumbers().size() == 1) {
+                    System.out.println("found an obvious num (" + cell.getPossibleNumbers().get(0) + ") for " + cell.getCoordinates());
+                    cell.setNumber(cell.getPossibleNumbers().get(0), CellNumber.Status.FIXED);
+                    printAnswer();
+                    findObviousNumbersForCells();
+                    break;
+                }
             }
         }
     }

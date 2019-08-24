@@ -14,18 +14,9 @@ public class Cell extends AbstractCell {
     private final CellGroup row, column, square;
     private PossibleNumbers numbers = new PossibleNumbers();
 
-    public Cell(int x, int y, CellRow row, CellColumn column, CellGroup square) {
-        coordinates = new Coordinates(x, y);
-        this.row = row;
-        this.column = column;
-        this.square = square;
-
-        List<CellGroup> groups = new ArrayList<>(3);
-        groups.addAll(Arrays.asList(row, column, square));
-        for (CellGroup group : groups) group.registerCell(this);
-    }
-
     public Cell(CellRow row, CellColumn column, CellGroup square) {
+        super(new HashSet<>(Arrays.asList(row, column, square)));
+
         coordinates = new Coordinates(row.getGroupNumber(), column.getGroupNumber());
         this.row = row;
         this.column = column;
@@ -49,7 +40,19 @@ public class Cell extends AbstractCell {
     }
 
     public ArrayList<Integer> getPossibleNumbers() {
-        return numbers.getNumbers();
+        if (getCellNumber().getStatus() != CellNumber.Status.FIXED) return numbers.getNumbers();
+        else return new ArrayList<>(); // TODO heap pollution, fix
+    }
+
+    @Override
+    public void setNumber(int n, CellNumber.Status status) {
+        super.setNumber(n, status);
+        numbers.setChanged();
+    }
+
+    @Override
+    public void numbersChanged() {
+        numbers.setChanged();
     }
 
     public Coordinates getCoordinates() { return coordinates; }
@@ -83,8 +86,8 @@ public class Cell extends AbstractCell {
             }
         }
 
-        void setChanged(boolean changed) {
-            isChanged = changed;
+        synchronized void setChanged() {
+            isChanged = true;
         }
 
         ArrayList<Integer> getNumbers() {

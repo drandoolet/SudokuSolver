@@ -6,12 +6,8 @@ import java.util.*;
 
 public class CellGroup extends AbstractCellGroup {
     private final ArrayList<Cell> cells = new ArrayList<>();
-    private int groupNumber;
+    private final int groupNumber;
     private NumbersNeeded numbersNeeded = new NumbersNeeded();
-
-    public CellGroup(Cell ...cells) {
-        this.cells.addAll(Arrays.asList(cells));
-    }
 
     @Override
     public String toString() {
@@ -36,6 +32,12 @@ public class CellGroup extends AbstractCellGroup {
     @Override
     public void registerCell(Cell cell) {
         cells.add(cell);
+    }
+
+    @Override
+    public void numbersChanged() {
+        numbersNeeded.numbersChanged();
+        cells.forEach(Cell::numbersChanged);
     }
 
     @Override
@@ -67,7 +69,7 @@ public class CellGroup extends AbstractCellGroup {
         private final List<Integer> nums = new ArrayList<>();
         private volatile boolean isChanged = true;
 
-        void numbersChanged() { isChanged = true; }
+        synchronized void numbersChanged() { isChanged = true; }
 
         private ArrayList<Integer> getNumbers() {
             synchronized (nums) {
