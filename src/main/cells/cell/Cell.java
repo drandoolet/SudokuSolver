@@ -40,8 +40,10 @@ public class Cell extends AbstractCell {
     }
 
     public ArrayList<Integer> getPossibleNumbers() {
-        if (getCellNumber().getStatus() != CellNumber.Status.FIXED) return numbers.getNumbers();
-        else return new ArrayList<>(); // TODO heap pollution, fix
+        //if (getCellNumber().getStatus() != CellNumber.Status.FIXED) return numbers.getNumbers();
+        //else return new ArrayList<>(); // TODO heap pollution, fix
+        if (getCellNumber().getStatus() == CellNumber.Status.FIXED) return new ArrayList<>();
+        else return numbers.getNumbers();
     }
 
     @Override

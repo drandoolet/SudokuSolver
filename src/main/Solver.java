@@ -39,6 +39,10 @@ public class Solver {
         long time = System.nanoTime();
         //test();
         findObviousNumbersForCells();
+        tryFindNonObviousNumbers(0);
+        for (Cell cell: cells) {
+            if (cell.getPossibleNumbers().size() != 0) System.out.println(cell);
+        }
         System.out.println("TOTAL time elapsed in solve() (sec): "+getSecondsElapsedFrom(time));
     }
 
@@ -48,11 +52,10 @@ public class Solver {
 
     private void findObviousNumbersForCells() {
         for (Cell cell : cells) {
-            //System.out.println(cell);
             ArrayList<Integer> possibleNumbers = cell.getPossibleNumbers();
 
             if (possibleNumbers.size() != 0) {
-                System.out.println(cell);
+                System.out.println(cell); // debug
 
                 if (cell.getPossibleNumbers().size() == 1) {
                     System.out.println("found an obvious num (" + cell.getPossibleNumbers().get(0) + ") for " + cell.getCoordinates());
@@ -63,6 +66,34 @@ public class Solver {
                 }
             }
         }
+    }
+
+    private boolean tryFindNonObviousNumbers(int startingPoint) {
+        System.out.printf("Now starts tryFind(%d)\n", startingPoint);
+        if (startingPoint == cells.size()) {
+            System.out.printf("tryFind(%d) has reached the end.\n", startingPoint);
+            return true;
+        }
+        Cell cell = null;
+        for (Cell cell1: cells) {
+            if (cell1.getCellNumber().getStatus() == CellNumber.Status.FREE) {
+                cell = cell1;
+                break;
+            }
+        }
+        if (cell == null) {
+            System.out.printf("tryFind(%d) has found no PN in cells. Solution found?\n", startingPoint);
+            return true;
+        }
+
+        ArrayList<Integer> possibleNumbers = cell.getPossibleNumbers();
+        for (Integer i : possibleNumbers) {
+            cell.setNumber(i, CellNumber.Status.PUT);
+            if (tryFindNonObviousNumbers(startingPoint+1)) return true;
+        }
+        System.out.printf("tryFind(%d) has found no solution.\n", startingPoint);
+        cell.setNumber(0, CellNumber.Status.FREE);
+        return false;
     }
 
     private Cell findCell(int x, int y) {
