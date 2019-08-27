@@ -2,6 +2,7 @@ package main;
 
 import main.cells.groups.*;
 import main.cells.cell.*;
+import main.FieldParser.SudokuField;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -9,33 +10,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Solver {
-    private final List<CellRow> rows;
-    private final List<CellColumn> columns;
-    private final List<CellGroup> squares;
-    private final ArrayList<Cell> cells = new ArrayList<>();
+    private final List<Cell> cells;
+    private final SudokuField field;
 
-    public Solver(List<CellRow> rows, List<CellColumn> columns, List<CellGroup> squares) {
-        this.rows = new ArrayList<>(rows);
-        this.columns = new ArrayList<>(columns);
-        this.squares = new ArrayList<>(squares);
-
-        for (CellGroup group : rows) cells.addAll(group.getCells());
+     Solver(SudokuField field) {
+        cells = field.getCells();
+        this.field = field;
     }
 
-    public CellGroup getCellGroupByClassAndNumber(Groups group, int number) {
+    private CellGroup getCellGroupByClassAndNumber(Groups group, int number) {
         switch (group) {
-            case ROW: return rows.get(number);
-            case COLUMN: return columns.get(number);
-            case SQUARE: return squares.get(number);
+            case ROW: return field.getRows().get(number);
+            case COLUMN: return field.getColumns().get(number);
+            case SQUARE: return field.getSquares().get(number);
             default: throw new IllegalArgumentException("No such CellGroup");
         }
     }
 
-    public void printAnswer() {
-        FieldParser.Printer.printField(rows);
-    }
-
-    public void solve() {
+    public SudokuField solve() {
         long time = System.nanoTime();
         //test();
         findObviousNumbersForCells();
@@ -44,6 +36,7 @@ public class Solver {
             if (cell.getPossibleNumbers().size() != 0) System.out.println(cell);
         }
         System.out.println("TOTAL time elapsed in solve() (sec): "+getSecondsElapsedFrom(time));
+        return field;
     }
 
     private float getSecondsElapsedFrom(long time) {
@@ -55,12 +48,9 @@ public class Solver {
             ArrayList<Integer> possibleNumbers = cell.getPossibleNumbers();
 
             if (possibleNumbers.size() != 0) {
-                System.out.println(cell); // debug
-
                 if (cell.getPossibleNumbers().size() == 1) {
-                    System.out.println("found an obvious num (" + cell.getPossibleNumbers().get(0) + ") for " + cell.getCoordinates());
+                    //System.out.println("found an obvious num (" + cell.getPossibleNumbers().get(0) + ") for " + cell.getCoordinates());
                     cell.setNumber(cell.getPossibleNumbers().get(0), CellNumber.Status.FIXED);
-                    printAnswer();
                     findObviousNumbersForCells();
                     break;
                 }
@@ -70,6 +60,7 @@ public class Solver {
 
     private boolean tryFindNonObviousNumbers(int startingPoint) {
         System.out.printf("Now starts tryFind(%d)\n", startingPoint);
+        //FieldParser.Printer.printFieldToConsole(field);
         if (startingPoint == cells.size()) {
             System.out.printf("tryFind(%d) has reached the end.\n", startingPoint);
             return true;
@@ -82,7 +73,7 @@ public class Solver {
             }
         }
         if (cell == null) {
-            System.out.printf("tryFind(%d) has found no PN in cells. Solution found?\n", startingPoint);
+            //System.out.printf("tryFind(%d) has found no PN in cells. Solution found?\n", startingPoint);
             return true;
         }
 
@@ -91,7 +82,11 @@ public class Solver {
             cell.setNumber(i, CellNumber.Status.PUT);
             if (tryFindNonObviousNumbers(startingPoint+1)) return true;
         }
-        System.out.printf("tryFind(%d) has found no solution.\n", startingPoint);
+        System.out.printf("tryFind(%d) has found no solution.\nCell: %s\nR: %s\nC: %s\nS: %s",
+                startingPoint, cell, getCellGroupByClassAndNumber(Groups.ROW, cell.getCoordinates().getX()),
+                getCellGroupByClassAndNumber(Groups.COLUMN, cell.getCoordinates().getY()),
+                getCellGroupByClassAndNumber(Groups.SQUARE, cell.getCoordinates().getS()));
+        FieldParser.Printer.printFieldToConsole(field);
         cell.setNumber(0, CellNumber.Status.FREE);
         return false;
     }
@@ -122,10 +117,16 @@ public class Solver {
     }
 
     private void test() {
-        System.out.println(findCell(0, 0));
-        System.out.println(getCellGroupByClassAndNumber(Groups.ROW, 0));
-        System.out.println(getCellGroupByClassAndNumber(Groups.COLUMN, 0));
-        System.out.println(getCellGroupByClassAndNumber(Groups.SQUARE, 0));
+        FieldParser.Printer.printFieldToConsole(field);
 
+        System.out.println(findCell(1, 11));
+        System.out.println(getCellGroupByClassAndNumber(Groups.ROW, 2));
+        System.out.println(getCellGroupByClassAndNumber(Groups.COLUMN, 7));
+        System.out.println(getCellGroupByClassAndNumber(Groups.SQUARE, 1));
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

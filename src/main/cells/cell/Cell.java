@@ -17,7 +17,7 @@ public class Cell extends AbstractCell {
     public Cell(CellRow row, CellColumn column, CellGroup square) {
         super(new HashSet<>(Arrays.asList(row, column, square)));
 
-        coordinates = new Coordinates(row.getGroupNumber(), column.getGroupNumber());
+        coordinates = new Coordinates(row.getGroupNumber(), column.getGroupNumber(), square.getGroupNumber());
         this.row = row;
         this.column = column;
         this.square = square;
@@ -101,11 +101,12 @@ public class Cell extends AbstractCell {
     }
 
     public class Coordinates {
-        final int x, y;
+        final int x, y, s;
 
-        Coordinates(int x, int y) {
+        Coordinates(int x, int y, int s) {
             this.x = x;
             this.y = y;
+            this.s = s;
         }
 
         public int getX() {
@@ -114,6 +115,10 @@ public class Cell extends AbstractCell {
 
         public int getY() {
             return y;
+        }
+
+        public int getS() {
+            return s;
         }
 
         @Override
