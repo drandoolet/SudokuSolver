@@ -186,8 +186,11 @@ class FieldParser {
 
         public List<Cell> getCells() {
             ArrayList<Cell> cells = new ArrayList<>();
-            for (CellRow row : rows)
+            /*for (CellRow row : rows)
                 cells.addAll(row.getCells());
+            return cells; */
+            for (CellGroup group : squares)
+                cells.addAll(group.getCells());
             return cells;
         }
 

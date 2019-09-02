@@ -28,14 +28,15 @@ public class Solver {
     }
 
     public SudokuField solve() {
-        long time = System.nanoTime();
+         //FieldParser.Printer.printFieldToConsole(field);
+        //long time = System.nanoTime();
         //test();
         findObviousNumbersForCells();
         tryFindNonObviousNumbers(0);
         for (Cell cell: cells) {
             if (cell.getPossibleNumbers().size() != 0) System.out.println(cell);
         }
-        System.out.println("TOTAL time elapsed in solve() (sec): "+getSecondsElapsedFrom(time));
+        //System.out.println("TOTAL time elapsed in solve() (sec): "+getSecondsElapsedFrom(time));
         return field;
     }
 
@@ -59,10 +60,9 @@ public class Solver {
     }
 
     private boolean tryFindNonObviousNumbers(int startingPoint) {
-        System.out.printf("Now starts tryFind(%d)\n", startingPoint);
-        //FieldParser.Printer.printFieldToConsole(field);
+        //System.out.printf("Now starts tryFind(%d)\n", startingPoint);
         if (startingPoint == cells.size()) {
-            System.out.printf("tryFind(%d) has reached the end.\n", startingPoint);
+            //System.out.printf("tryFind(%d) has reached the end.\n", startingPoint);
             return true;
         }
         Cell cell = null;
@@ -82,11 +82,7 @@ public class Solver {
             cell.setNumber(i, CellNumber.Status.PUT);
             if (tryFindNonObviousNumbers(startingPoint+1)) return true;
         }
-        System.out.printf("tryFind(%d) has found no solution.\nCell: %s\nR: %s\nC: %s\nS: %s",
-                startingPoint, cell, getCellGroupByClassAndNumber(Groups.ROW, cell.getCoordinates().getX()),
-                getCellGroupByClassAndNumber(Groups.COLUMN, cell.getCoordinates().getY()),
-                getCellGroupByClassAndNumber(Groups.SQUARE, cell.getCoordinates().getS()));
-        FieldParser.Printer.printFieldToConsole(field);
+        //FieldParser.Printer.printFieldToConsole(field);
         cell.setNumber(0, CellNumber.Status.FREE);
         return false;
     }
