@@ -199,7 +199,13 @@ class FieldParser {
             private final ArrayList<CellColumn> columns;
             private final ArrayList<CellGroup> squares;
 
-             Builder() {
+            private Builder(ArrayList<CellRow> rows, ArrayList<CellColumn> columns, ArrayList<CellGroup> squares) {
+                this.rows = rows;
+                this.columns = columns;
+                this.squares = squares;
+            }
+
+            Builder() {
                 rows = new ArrayList<>();
                 columns = new ArrayList<>();
                 squares = new ArrayList<>();

@@ -2,6 +2,7 @@ package main;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CalcHelper {
@@ -19,27 +20,25 @@ public class CalcHelper {
         return ((float) TimeUnit.NANOSECONDS.toSeconds(nanos*100)) / 100;
     }
 
-    public static TimeCounterHelper getTimeCounterHelper(int iterations) {
-        return new TimeCounterHelper(iterations);
+    public static TimeCounterHelper getTimeCounterHelper() {
+        return new TimeCounterHelper();
     }
 
     public static class TimeCounterHelper {
-        private long initialTime, finishTime;
         private AtomicLong totalTime;
-        private int iterations;
+        private AtomicInteger iterations;
         private long maxTime, minTime;
-        private AtomicBoolean isFinished;
 
-        private TimeCounterHelper(int iterations) {
+        private TimeCounterHelper() {
             maxTime = Long.MIN_VALUE;
             minTime = Long.MAX_VALUE;
-            this.iterations = iterations;
-            isFinished = new AtomicBoolean(false);
+            iterations = new AtomicInteger();
             totalTime = new AtomicLong();
         }
 
         public void update(long iterationTime) {
             totalTime.addAndGet(iterationTime);
+            iterations.incrementAndGet();
             updateMaxMinTime(iterationTime);
         }
 
@@ -53,46 +52,29 @@ public class CalcHelper {
             }
         }
 
-        public void finish() {
-            finishTime = System.nanoTime();
-            isFinished.set(true);
-        }
-
         public float getTimeElapsed() {
-            if (isFinished.get()) {
-                return CalcHelper.convertSystemNanosToSeconds(totalTime.get());
-            }
-            else return -1;
+            return CalcHelper.convertSystemNanosToSeconds(totalTime.get());
         }
 
         public float getMaxTime() {
-            if (isFinished.get()) {
-                return CalcHelper.convertSystemNanosToSeconds(maxTime);
-            }
-            else return -1;
+            return CalcHelper.convertSystemNanosToSeconds(maxTime);
         }
 
         public float getMinTime() {
-            if (isFinished.get()) {
-                return CalcHelper.convertSystemNanosToSeconds(minTime);
-            }
-            else return -1;
+            return CalcHelper.convertSystemNanosToSeconds(minTime);
         }
 
         public float getSecondsPerIteration() {
-            if (isFinished.get()) {
-                return getTimeElapsed() / iterations;
-            }
-            else return -1;
+            return getTimeElapsed() / iterations.get();
         }
 
-        public int getIterations() { return iterations; }
+        public int getIterations() { return iterations.get(); }
 
         @Override
         public String toString() {
             return String.format("Time elapsed for %d iterations: %f.\n" +
                             "Seconds per iteration: %f. Max: %f. Min: %f.\n",
-                    iterations,
+                    iterations.get(),
                     getTimeElapsed(),
                     getSecondsPerIteration(),
                     getMaxTime(), getMinTime());

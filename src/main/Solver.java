@@ -40,10 +40,6 @@ public class Solver {
         return field;
     }
 
-    private float getSecondsElapsedFrom(long time) {
-        return (float) (TimeUnit.NANOSECONDS.toSeconds((System.nanoTime()-time)*100))/100;
-    }
-
     private void findObviousNumbersForCells() {
         for (Cell cell : cells) {
             ArrayList<Integer> possibleNumbers = cell.getPossibleNumbers();
@@ -60,7 +56,7 @@ public class Solver {
     }
 
     private boolean tryFindNonObviousNumbers(int startingPoint) {
-        //System.out.printf("Now starts tryFind(%d)\n", startingPoint);
+        System.out.printf("Now starts tryFind(%d)\n", startingPoint);
         if (startingPoint == cells.size()) {
             //System.out.printf("tryFind(%d) has reached the end.\n", startingPoint);
             return true;
