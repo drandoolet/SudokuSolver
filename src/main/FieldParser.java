@@ -4,35 +4,46 @@ import main.cells.cell.*;
 import main.cells.groups.CellColumn;
 import main.cells.groups.CellGroup;
 import main.cells.groups.CellRow;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 class FieldParser {
 
-    static void startParsingAndRegistering(
-            ArrayList<CellRow> rows,
-            ArrayList<CellColumn> columns,
-            ArrayList<CellGroup> groups) throws IOException {
-        System.out.println("Please enter a row (e.g. 102000503 for a 9-digit-per-row field).");
-        System.out.println("Be sure to enter 9 digits.");
-        System.out.println("Input ends automatically when you create a square or throws an exception otherwise.");
+    static SudokuField parseField(String parse, int squareXSize, int squareYSize) {
+        List<List<Integer>> lists = convertStringFieldIntoIntList(parse);
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-
-        String s = bufferedReader.readLine();
-        int length = s.length();
-        if (length != 9) throw new IllegalArgumentException("You need to enter 9 digits!");
-
-        parseAndRegisterRow(s, 0, rows, columns, groups);
-
-        for (int i = 1; i < length; i++) {
-            parseAndRegisterRow(bufferedReader.readLine(), i, rows, columns, groups);
+        class Helper {
+            private int getSquareNum(int rowNumber, int columnNumber, int squareSizeX, int squareSizeY) {
+                int row = squareSizeX * (rowNumber / squareSizeX);
+                int column = columnNumber / squareSizeY;
+                return row + column;
+            }
         }
+        Helper helper = new Helper();
+
+        testParseString(lists);
+
+        SudokuField.Builder builder = new SudokuField.Builder();
+        builder.initializeLists(lists.size());
+
+        for (int rowNum = 0; rowNum < lists.size(); rowNum++) {
+            List<Integer> row = lists.get(rowNum);
+            for (int columnNum = 0; columnNum < row.size(); columnNum++) {
+                int cellNum = row.get(columnNum);
+                registerCell(cellNum, rowNum, columnNum,
+                        helper.getSquareNum(rowNum, columnNum, squareXSize, squareYSize),
+                        builder);
+            }
+        }
+
+        return builder.build();
     }
 
     static SudokuField parseField(String parse) {
@@ -55,7 +66,7 @@ class FieldParser {
             char[] chars = strings[rowNum].toCharArray(); // TODO what if num is 2 digit ?
             for (int j = 0; j < chars.length; j++) {
                 int n = Integer.parseInt(String.valueOf(chars[j]));
-                Cell cell = new Cell(builder.getCellRow(rowNum), builder.getCellColumn(j),
+                Cell cell = Cell.CellFactory.newCell(builder.getCellRow(rowNum), builder.getCellColumn(j),
                         builder.getCellSquare(helper.getSquareNum(rowNum, j, squareSize)));
                 if (n == 0) cell.setNumber(0, CellNumber.Status.FREE);
                 else cell.setNumber(n, CellNumber.Status.FIXED);
@@ -65,13 +76,90 @@ class FieldParser {
         return builder.build();
     }
 
+    private static boolean testParseString(List<List<Integer>> lists) {
+        int y = lists.size();
+        for (List<Integer> list : lists) {
+            if (list.size() != y) throw new IllegalArgumentException("Not a square!");
+        }
+
+        return true;
+    }
+
     private static boolean testParseString(String... strings) {
-        if (Math.sqrt(strings[0].length()) != (int) Math.sqrt(strings[0].length())) return false;
+        //if (Math.sqrt(strings[0].length()) != (int) Math.sqrt(strings[0].length())) return false;
         //if (strings[0].length() % 3 != 0) return false;
         for (int i = 1; i < strings.length; i++) {
             if (strings[i-1].length() != strings[i].length()) return false;
         }
         return true;
+    }
+
+    private static void registerRow(char[] chars,
+                                    int rowNumber,
+                                    ArrayList<CellRow> rows,
+                                    ArrayList<CellColumn> columns,
+                                    ArrayList<CellGroup> groups) {
+
+    }
+
+    private static void registerCell(int number, int rowIdx, int columnIdx, int groupIdx,
+                                     ArrayList<CellRow> rows,
+                                     ArrayList<CellColumn> columns,
+                                     ArrayList<CellGroup> groups) {
+        Cell cell = Cell.CellFactory.newCell(rows.get(rowIdx), columns.get(columnIdx), groups.get(groupIdx));
+        if (number == 0) cell.setNumber(0, CellNumber.Status.FREE);
+        else cell.setNumber(number, CellNumber.Status.FIXED);
+    }
+
+    private static void registerCell(int number, int rowIdx, int columnIdx, int groupIdx,
+                                     SudokuField.Builder builder) {
+        Cell cell = Cell.CellFactory.newCell(builder.getCellRow(rowIdx),
+                builder.getCellColumn(columnIdx),
+                builder.getCellSquare(groupIdx));
+        if (number == 0) cell.setNumber(0, CellNumber.Status.FREE);
+        else cell.setNumber(number, CellNumber.Status.FIXED);
+    }
+
+
+    public static List<List<Integer>> convertStringFieldIntoIntList(String parse) {
+        Scanner scanner = new Scanner(parse).useDelimiter(" ");
+        List<List<Integer>> result = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
+
+        String s = null;
+        while (true) {
+            try {
+                s = scanner.next();
+            } catch (NoSuchElementException e) {
+                break;
+            }
+
+            if (s.contains("\n")) {
+                String[] ss = s.split("\n");
+                list.add(Integer.parseInt(ss[0]));
+
+                ArrayList<Integer> list2 = new ArrayList<>(list);
+                //Collections.copy(list2, list);
+                result.add(list2);
+                list.clear();
+
+                if (ss.length != 2) break;
+
+                s = ss[1];
+            }
+            list.add(Integer.parseInt(s));
+        }
+
+        for (int i=0; i<result.size(); i++) {
+            System.out.print("Line "+i+": { ");
+            List<Integer> arrayList = result.get(i);
+            for (Integer integer : arrayList) {
+                System.out.printf("[%d]", integer);
+            }
+            System.out.println(" }");
+        }
+
+        return result;
     }
 
     private static void parseAndRegisterRow(String s,
@@ -82,9 +170,8 @@ class FieldParser {
         char[] chars = s.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             int n = Integer.parseInt(String.valueOf(chars[i]));
-            Cell cell = new Cell(rows.get(rowNumber), columns.get(i), groups.get(3 * (rowNumber / 3) + i / 3));
-            if (n == 0) cell.setNumber(0, CellNumber.Status.FREE);
-            else cell.setNumber(n, CellNumber.Status.FIXED);
+            registerCell(n, rowNumber, i, (3 * (rowNumber / 3) + i / 3),
+                    rows, columns, groups);
         }
     }
 
@@ -233,6 +320,99 @@ class FieldParser {
 
             SudokuField build() {
                  return new SudokuField(rows, columns, squares);
+            }
+        }
+    }
+
+    static class JsonParser {
+        private JsonParser() {
+        }
+
+        enum Tokens {
+            ROW("row"),
+            COLUMN("column"),
+            GROUP("group"),
+            NUMBER("number"),
+            STATUS("status");
+            final String pattern;
+
+            Tokens(String pattern) {
+                this.pattern = pattern;
+            }
+
+            enum Main {
+                CELLS("cells"),
+                FIELD_SIZE("field_size"),
+                SQUARE_X_SIZE("square_x_size"),
+                SQUARE_Y_SIZE("square_y_size");
+                final String pattern;
+
+                Main(String pattern) {
+                    this.pattern = pattern;
+                }
+            }
+        }
+
+        private static void addCell(JSONObject where, Cell cell) {
+            JSONObject object = new JSONObject();
+            object.put(Tokens.ROW.pattern, cell.getCoordinates().getX());
+            object.put(Tokens.COLUMN.pattern, cell.getCoordinates().getY());
+            object.put(Tokens.GROUP.pattern, cell.getCoordinates().getS());
+            object.put(Tokens.NUMBER.pattern, cell.getCellNumber().getNumber());
+            object.put(Tokens.STATUS.pattern, cell.getCellNumber().getStatus().toString());
+            JSONArray array = (JSONArray) where.get(Tokens.Main.CELLS.pattern);
+            array.add(object);
+        }
+
+        public static SudokuField parseField(String jsonString) throws ParseException {
+            JSONObject main = (JSONObject) new JSONParser().parse(jsonString);
+            JSONArray array = (JSONArray) main.get(Tokens.Main.CELLS.pattern);
+
+            SudokuField.Builder builder = new SudokuField.Builder();
+            builder.initializeLists(getIntFromLongObject(main.get(Tokens.Main.FIELD_SIZE.pattern)));
+
+            for (int i = 0; i < array.size(); i++) {
+                JSONCellObject object = JSONCellObject.newJsonCellObject((JSONObject) array.get(i));
+                registerCell(object.getInt(Tokens.NUMBER),
+                        object.getInt(Tokens.ROW),
+                        object.getInt(Tokens.COLUMN),
+                        object.getInt(Tokens.GROUP),
+                        builder);
+            }
+
+            return builder.build();
+        }
+
+        public static String getJsonString(SudokuField field) {
+            JSONObject main = new JSONObject();
+            main.put(Tokens.Main.CELLS.pattern, new JSONArray());
+            main.put(Tokens.Main.FIELD_SIZE.pattern, field.getRows().size());
+            //main.put(Tokens.Main.SQUARE_X_SIZE.pattern, );
+            //main.put(Tokens.Main.SQUARE_Y_SIZE.pattern, );
+
+            for (Cell cell: field.getCells())
+                addCell(main, cell);
+
+            return main.toJSONString();
+        }
+
+        private static int getIntFromLongObject(Object o) {
+            return ((Long) o).intValue();
+        }
+
+        private static class JSONCellObject {
+            private final JSONObject object;
+
+            private JSONCellObject(JSONObject object) {
+                this.object = object;
+            }
+
+            static JSONCellObject newJsonCellObject(JSONObject object) {
+                return new JSONCellObject(object);
+            }
+
+            int getInt(Tokens token) {
+                return getIntFromLongObject(object.get(token.pattern));
             }
         }
     }

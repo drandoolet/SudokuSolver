@@ -42,7 +42,7 @@ public class Solver {
 
     private void findObviousNumbersForCells() {
         for (Cell cell : cells) {
-            ArrayList<Integer> possibleNumbers = cell.getPossibleNumbers();
+            List<Integer> possibleNumbers = cell.getPossibleNumbers();
 
             if (possibleNumbers.size() != 0) {
                 if (cell.getPossibleNumbers().size() == 1) {
@@ -73,7 +73,7 @@ public class Solver {
             return true;
         }
 
-        ArrayList<Integer> possibleNumbers = cell.getPossibleNumbers();
+        List<Integer> possibleNumbers = cell.getPossibleNumbers();
         for (Integer i : possibleNumbers) {
             cell.setNumber(i, CellNumber.Status.PUT);
             if (tryFindNonObviousNumbers(startingPoint+1)) return true;

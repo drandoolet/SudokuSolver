@@ -4,17 +4,15 @@ import main.cells.groups.CellColumn;
 import main.cells.groups.CellGroup;
 import main.cells.groups.CellRow;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class Cell extends AbstractCell {
+    private static final List<Integer> EMPTY_NUMBERS_LIST = Collections.unmodifiableList(new ArrayList<>());
     private final Coordinates coordinates;
     private final CellGroup row, column, square;
     private PossibleNumbers numbers = new PossibleNumbers();
 
-    public Cell(CellRow row, CellColumn column, CellGroup square) {
+    private Cell(CellRow row, CellColumn column, CellGroup square) {
         super(new HashSet<>(Arrays.asList(row, column, square)));
 
         coordinates = new Coordinates(row.getGroupNumber(), column.getGroupNumber(), square.getGroupNumber());
@@ -39,10 +37,10 @@ public class Cell extends AbstractCell {
                 square.getGroupNumber());
     }
 
-    public ArrayList<Integer> getPossibleNumbers() {
+    public List<Integer> getPossibleNumbers() {
         //if (getCellNumber().getStatus() != CellNumber.Status.FIXED) return numbers.getNumbers();
         //else return new ArrayList<>(); // TODO heap pollution, fix
-        if (getCellNumber().getStatus() == CellNumber.Status.FIXED) return new ArrayList<>();
+        if (getCellNumber().getStatus() == CellNumber.Status.FIXED) return EMPTY_NUMBERS_LIST;
         else return numbers.getNumbers();
     }
 
@@ -124,6 +122,12 @@ public class Cell extends AbstractCell {
         @Override
         public String toString() {
             return String.format("Cell(%d-%d)", x, y);
+        }
+    }
+
+    public static class CellFactory {
+        public static Cell newCell(CellRow row, CellColumn column, CellGroup square) {
+            return new Cell(row, column, square);
         }
     }
 
